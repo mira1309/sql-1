@@ -2,42 +2,41 @@ package ru.hogwarts.school.service;
 
 import org.springframework.stereotype.Service;
 import ru.hogwarts.school.model.Student;
+import ru.hogwarts.school.repository.StudentRepository;
 
-import java.sql.SQLOutput;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 @Service
 public class StudentServiceImpl implements StudentService{
 
+    private StudentRepository studentRepository;
+    public StudentServiceImpl(StudentRepository studentRepository) {
+        this.studentRepository = studentRepository;
+    }
 
-    private Map<Long, Student> studentMap = new HashMap<>();
-
-    private long counter = 0;
     @Override
     public Student addStudent(Student student) {
-        Long id = counter++;
-        Student newStudent = new Student(id, student.getName(), student.getAge());
-        studentMap.put(id, newStudent);
-        return newStudent;
+        return studentRepository.save(student);
     }
 
     @Override
     public Student getStudent(Long id) {
-        return studentMap.get(id);
+        return studentRepository.findById(id).get();
     }
 
     @Override
-    public Student updateStudent(Long id, Student student) {
-        Student existingStudent = studentMap.get(id);
-        existingStudent.setName(student.getName());
-        existingStudent.setAge(student.getAge());
-        return existingStudent;
+    public Student updateStudent(Student student) {
+        return studentRepository.save(student);
     }
 
     @Override
     public void removeStudent(Long id) {
-        studentMap.remove(id);
-        System.out.println(String.format("Student %s has been removed", id));
+        studentRepository.deleteById(id);
     }
+
+    @Override
+        public List<Student> getWhenAgeBetween(Integer min, Integer max) {
+        return studentRepository.findAllByAgeBetween(min, max);
+    }
+
 }
